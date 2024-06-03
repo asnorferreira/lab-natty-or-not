@@ -1,14 +1,21 @@
-from src.MarkovChain import MarkovChain
+import unittest
+import torch
 
+from src.TextDataset import RNN, TextDataset
 
-class TextGenerator:
-    def __init__(self, order=2):
-        self.markov = MarkovChain()
-        self.order = order
+class TestTextGenerator(unittest.TestCase):
+    def test_data_loading(self):
+        dataset = TextDataset("Hello world")
+        self.assertEqual(len(dataset), 10) 
 
-    def train(self, text, style):
-        if text:
-            self.markov.add_to_chain(text, style, self.order)
+    def test_rnn_output(self):
+        dataset = TextDataset("Hello world")
+        model = RNN(dataset.chars)
+        hidden = model.init_hidden(1)
+        char_to_int = {ch: ii for ii, ch in dict(enumerate(dataset.chars)).items()}
+        input = torch.tensor([[char_to_int['H']]], dtype=torch.long)
+        output, hidden = model(input, hidden)
+        self.assertTrue(output is not None)
 
-    def generate(self, style, length=50):
-        return self.markov.generate_text(style, length)
+if __name__ == '__main__':
+    unittest.main()

@@ -16,3 +16,19 @@ O projeto resultou em um aplicativo funcional que permite ao usuário escolher e
 
 ## 💭 Reflexão
 O desafio de criar textos que não apenas pareçam naturais, mas também mantenham o estilo de escrita desejado, foi intrigante. A experiência destacou a importância de ter um conjunto de dados diversificado e suficientemente grande para treinar o modelo de forma eficaz. Além disso, foi uma excelente oportunidade para explorar como técnicas simples de IA podem ser utilizadas para criar ferramentas poderosas e criativas.
+
+# Usar uma imagem base do Python
+FROM python:3.8-slim
+
+# Instalar dependências
+COPY requirements.txt /app/
+RUN pip install -r /app/requirements.txt
+
+# Copiar o código fonte
+COPY . /app
+
+# Definir o diretório de trabalho
+WORKDIR /app
+
+# Comando para iniciar o app
+CMD ["python", "app.py"]

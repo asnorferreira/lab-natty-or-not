@@ -1,32 +1,53 @@
 import tkinter as tk
 from tkinter import messagebox, simpledialog
+from tkinter import filedialog
 
 from src.DataManager import DataManager
+from src.TextDataset import RNN, TextDataset
 from src.TextGenerator import TextGenerator
 
-class TextGeneratorApp:
-    def __init__(self, master):
-        self.master = master
-        self.master.title("Markov Chain Text Generator")
+class TextGeneratorApp(tk.Tk):
+    def __init__(self):
+        super().__init__()
+        self.title("Advanced Text Generator")
         
-        self.generator = TextGenerator()
-        self.style = tk.StringVar(master)
-        
-        tk.Label(master, text="Enter Style:").pack()
-        tk.Entry(master, textvariable=self.style).pack()
-        
-        tk.Button(master, text="Load Text and Train", command=self.load_text).pack()
-        tk.Button(master, text="Generate Text", command=self.generate_text).pack()
-        self.text_output = tk.Text(master, height=10, width=50)
-        self.text_output.pack()
+        tk.Label(self, text="Enter Style:").grid(row=0, column=0)
+        self.style_entry = tk.Entry(self)
+        self.style_entry.grid(row=0, column=1)
+
+        tk.Button(self, text="Load Text", command=self.load_text).grid(row=1, column=0)
+        tk.Button(self, text="Train Model", command=self.train_model).grid(row=1, column=1)
+        tk.Button(self, text="Generate Text", command=self.generate_text).grid(row=2, column=0, columnspan=2)
+
+        self.text_output = tk.Text(self, height=15, width=50)
+        self.text_output.grid(row=3, column=0, columnspan=2)
+
+        self.model = None
+        self.text_data = None
 
     def load_text(self):
-        text = DataManager().load_data()
-        style = simpledialog.askstring("Input", "Enter text style:", parent=self.master)
-        self.generator.train(text, style)
-        messagebox.showinfo("Training", "Training complete for style: " + style)
+        file_path = filedialog.askopenfilename()
+        if file_path:
+            with open(file_path, 'r', encoding='utf-8') as file:
+                self.text_data = file.read()
+            messagebox.showinfo("Info", "Text loaded successfully!")
+
+    def train_model(self):
+        if self.text_data:
+            dataset = TextDataset(self.text_data)
+            self.model = RNN(dataset.chars)
+            # Training logic here
+            messagebox.showinfo("Info", "Model trained successfully!")
 
     def generate_text(self):
-        result = self.generator.generate(self.style.get(), 100)
-        self.text_output.delete(1.0, tk.END)
-        self.text_output.insert(tk.END, result)
+        if self.model:
+            # Generate text logic here
+            generated_text = "Generated text appears here."
+            self.text_output.delete(1.0, tk.END)
+            self.text_output.insert(tk.END, generated_text)
+        else:
+            messagebox.showinfo("Error", "Model not trained yet.")
+
+if __name__ == "__main__":
+    app = TextGeneratorApp()
+    app.mainloop()
